@@ -5,13 +5,13 @@ var path = require('path');
 var libPath = path.join(__dirname, 'lib');
 var pagify = require(path.join(libPath, 'pagify'));
 
-module.exports = function(sails){
+module.exports = function(sails) {
 
-    function patch(context){
-        _.forEach(sails.models, function(model){
+    function patch(context) {
+        _.forEach(sails.models, function(model) {
 
             // Add pagify method to all models. Ignoring associative tables
-            if(model.globalId){
+            if(model.globalId) {
                 pagify(model, context);
             }
         })
@@ -25,18 +25,9 @@ module.exports = function(sails){
             }
         },
 
-        initialize: function(next){
-
-            var waitEvents = [];
-            if(sails.hooks.orm){
-                waitEvents.push('hook:orm:loaded');
-            }
-
-            if (sails.hooks.pubsub) {
-                waitEvents.push('hook:pubsub:loaded');
-            }
-
-            sails.after(waitEvents, function(){
+        initialize: function(next) {
+            var eventsToWaitFor = ['hook:orm:loaded', 'hook:pubsub:loaded'];
+            sails.after(eventsToWaitFor, function() {
                 patch(this);
                 next();
             }.bind(this))
